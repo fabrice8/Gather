@@ -4,7 +4,7 @@ import type { Author, DBCollections, Keyword, Publication, Stage } from '../type
 import request from 'request-promise'
 
 const
-BREAK_DELAY = 3,
+BREAK_DELAY = 6,
 MAX_KEYWORDS_BY_QUEUE = 10,
 INITIAL_KEYWORD = 'role',
 NPM_BASE_URL = 'https://registry.npmjs.org/-/v1/search?text='
@@ -22,8 +22,8 @@ async function searchPackages( keyword: string ): Promise<Package[]> {
 
     return objects
   }
-  catch( error ){ 
-    console.log(`Failed search for <${keyword}>: `, error )
+  catch( error: any ){ 
+    console.log(`Failed search for <${keyword}>: `, error.message )
     return []
   }
 }

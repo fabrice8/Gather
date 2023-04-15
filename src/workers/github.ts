@@ -4,7 +4,7 @@ import type { Author, DBCollections, Keyword, Publication, Stage } from '../type
 import request from 'request-promise'
 
 const
-BREAK_DELAY = 3,
+BREAK_DELAY = 10,
 MAX_KEYWORDS_BY_QUEUE = 10,
 INITIAL_KEYWORD = 'role',
 GITHUB_BASE_URL = 'https://api.github.com'
@@ -27,8 +27,8 @@ async function searchRepositories( keyword: string ): Promise<Repository[]> {
 
     return items
   }
-  catch( error ){ 
-    console.log(`Failed search for <${keyword}>: `, error )
+  catch( error: any ){ 
+    console.log(`Failed search for <${keyword}>: `, error.message )
     return []
   }
 }
@@ -49,8 +49,8 @@ async function getUser( username: string ): Promise<User | null> {
 
     return await request( options )
   }
-  catch( error ){ 
-    console.log(`Failed getting user <${username}>: `, error )
+  catch( error: any ){ 
+    console.log(`Failed getting user <${username}>: `, error.error )
     return null
   }
 }
