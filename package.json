@@ -4,7 +4,7 @@
   "description": "Find and gather online authors information from different platforms: NPM, Github, Medium...",
   "private": true,
   "scripts": {
-    "build": "rimraf ./build && tsc && cp ./src/bin/ca-certificate.cer ./build",
+    "build": "rimraf ./build && tsc && cp ./src/utils/ca-certificate.cer ./build",
     "start": "nodemon",
     "start:prod": "NODE_ENV=production node build/index.js",
     "test": "ava test/**/*.js --verbose",

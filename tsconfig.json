@@ -19,6 +19,5 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
     "typeRoots": ["src/types"]
-  },
-  "include": ["/src/**/*", "src/desc.d.ts"]
+  }
 }
