@@ -3,17 +3,13 @@ import type { Package } from '../types/npm'
 import type { Author, DBCollections, Keyword, Publication, Stage } from '../types'
 import request from 'request-promise'
 
-const
-BREAK_DELAY = 6,
-MAX_KEYWORDS_BY_QUEUE = 10,
-INITIAL_KEYWORD = 'role',
-NPM_BASE_URL = 'https://registry.npmjs.org/-/v1/search?text='
+const INITIAL_KEYWORD = 'role'
 
 async function searchPackages( keyword: string ): Promise<Package[]> {
   try {
     const
     options = {
-      url: NPM_BASE_URL + keyword,
+      url: process.env.NPM_BASE_URL + keyword,
       method: 'GET',
       json: true
     },
@@ -120,7 +116,7 @@ export default async ( dbc: DBCollections ) => {
       const
       lastTimestamp = keywords.slice(-1)[0].timestamp,
       results = await dbc.Keywords.find({ timestamp: { $gte: lastTimestamp } })
-                                  .limit( MAX_KEYWORDS_BY_QUEUE )
+                                  .limit( Number( process.env.MAX_KEYWORDS_BY_QUEUE ) || 10 )
                                   .toArray() as unknown as Keyword[]
       if( !results.length ){
         console.log('-- NPM: JOB COMPLETED --')
@@ -129,7 +125,7 @@ export default async ( dbc: DBCollections ) => {
       
       // Start a job queue
       worker( results )
-    }, BREAK_DELAY * 1000 )
+    }, (Number( process.env.NPM_BREAK_DELAY ) || 8) * 1000 )
   }
 
   // Initial keywords

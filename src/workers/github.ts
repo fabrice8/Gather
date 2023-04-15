@@ -3,17 +3,13 @@ import type { Repository, User } from '../types/github'
 import type { Author, DBCollections, Keyword, Publication, Stage } from '../types'
 import request from 'request-promise'
 
-const
-BREAK_DELAY = 10,
-MAX_KEYWORDS_BY_QUEUE = 10,
-INITIAL_KEYWORD = 'role',
-GITHUB_BASE_URL = 'https://api.github.com'
+const INITIAL_KEYWORD = 'linux'
 
 async function searchRepositories( keyword: string ): Promise<Repository[]> {
   try {
     const
     options = {
-      url: `${GITHUB_BASE_URL}/search/repositories?q=${keyword}`,
+      url: `${process.env.GITHUB_BASE_URL}/search/repositories?q=${keyword}`,
       method: 'GET',
       headers: {
         'Accept': 'application/vnd.github+json',
@@ -37,7 +33,7 @@ async function getUser( username: string ): Promise<User | null> {
   try {
     const
     options = {
-      url: `${GITHUB_BASE_URL}/users/${username}`,
+      url: `${process.env.GITHUB_BASE_URL}/users/${username}`,
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -142,7 +138,7 @@ export default async ( dbc: DBCollections ) => {
       const
       lastTimestamp = keywords.slice(-1)[0].timestamp,
       results = await dbc.Keywords.find({ timestamp: { $gte: lastTimestamp } })
-                                  .limit( MAX_KEYWORDS_BY_QUEUE )
+                                  .limit( Number( process.env.MAX_KEYWORDS_BY_QUEUE ) || 10 )
                                   .toArray() as unknown as Keyword[]
       if( !results.length ){
         console.log('-- GITHUB: JOB COMPLETED --')
@@ -151,7 +147,7 @@ export default async ( dbc: DBCollections ) => {
       
       // Start a job queue
       worker( results )
-    }, BREAK_DELAY * 1000 )
+    }, (Number( process.env.GITHUB_BREAK_DELAY ) || 10) * 1000 )
   }
 
   // Initial keywords
