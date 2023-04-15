@@ -11,6 +11,8 @@ export type Author = {
   name?: string
   url?: string
   username?: string
+  blog?: string
+  location?: string
   publications?: Publication[]
 }
 export type Keyword = {

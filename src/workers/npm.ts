@@ -32,7 +32,10 @@ export default async ( dbc: DBCollections ) => {
 
   async function saveAuthor( pkg: Package['package'] ){
     
-    const publication: Publication = { name: pkg.name, source: 'npm' }
+    const publication: Publication = {
+      name: pkg.name,
+      source: 'npm'
+    }
 
     async function _save( author: Author ){
       // Author email strictly required
@@ -56,12 +59,8 @@ export default async ( dbc: DBCollections ) => {
       }
 
       // New author entry
-      const _author: Author = {
-        ...author,
-        publications: [ publication ]
-      }
-
-      await dbc.Authors.insertOne( _author )
+      author.publications = [ publication ]
+      await dbc.Authors.insertOne( author )
     }
 
     // Save author details
@@ -85,9 +84,7 @@ export default async ( dbc: DBCollections ) => {
       console.log(`\t\t----- Saving keywords <${value}>`)
 
       if( await dbc.Keywords.findOne({ value }) ) return
-
-      const keyword: Keyword = { value, timestamp: Date.now() }
-      await dbc.Keywords.insertOne( keyword )
+      await dbc.Keywords.insertOne({ value, timestamp: Date.now() } as Keyword )
     } ) )
   }
 
@@ -135,11 +132,11 @@ export default async ( dbc: DBCollections ) => {
     }, BREAK_DELAY * 1000 )
   }
 
-  // Get last job stage
-  const stage = await dbc.Stages.findOne({ worker: 'npm' }) as unknown as Stage
-
   // Initial keywords
   let keywords = [{ value: INITIAL_KEYWORD, timestamp: 0 }]
+
+  // Use previous job's stage keyword
+  const stage = await dbc.Stages.findOne({ worker: 'npm' }) as unknown as Stage
   if( stage ) keywords = [ stage.lastKeyword ]
 
   // Launch worker

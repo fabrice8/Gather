@@ -1,8 +1,9 @@
 
 import type { DBCollections } from './types'
-import dotenv from 'dotenv'
 import { MongoClient } from 'mongodb'
+import dotenv from 'dotenv'
 import NPM from './workers/npm'
+import Github from './workers/github'
 
 dotenv.config()
 
@@ -29,11 +30,18 @@ async function dbConnect(): Promise<DBCollections> {
     return
   }
 
-  const dbc = await dbConnect()
-  
-  Workers.map( each => {
-    switch( each ){
-      case 'npm': NPM( dbc ); break
-    }
-  } )
+  try {
+    const dbc = await dbConnect()
+    
+    Workers.map( each => {
+      switch( each ){
+        case 'npm': NPM( dbc ); break
+        case 'github': Github( dbc ); break
+      }
+    } )
+  }
+  catch( error ){ 
+    console.error( error )
+    process.exit(0)
+  }
 })()
