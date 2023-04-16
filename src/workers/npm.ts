@@ -68,11 +68,13 @@ export default async ( dbc: DBCollections ) => {
     && await _save( pkg.publisher )
 
     // Save each maintainer details if different from author and publisher
-    await Promise.all( pkg.maintainers.map( async maintainer => {
+    Array.isArray( pkg.maintainers )
+    && pkg.maintainers.length
+    && await Promise.all( pkg.maintainers.map( async maintainer => {
       pkg.author?.email !== maintainer.email
       && pkg.publisher.email !== maintainer.email
       && await _save( maintainer )
-    }) )
+    } ) )
   }
 
   async function storeKeywords( keywords: string[] ){
