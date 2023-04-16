@@ -8,7 +8,6 @@ import Packagist from './workers/packagist'
 
 dotenv.config()
 
-
 declare global {
   interface Array<T> {
     pmap: ( fn: ( x: T ) => Promise<any> ) => Promise<any>
@@ -20,19 +19,20 @@ Array.prototype.pmap = async function( fn ){
   if( !this.length ) return []
 
   const
-  toReturn: any[] = [],
+  _array = JSON.parse( JSON.stringify( this ) ),
+  _return: any[] = [],
   recuror = async () => {
     const 
-    each = this.shift()
-    toReturn.push( await fn( each ) || each )
+    each = _array.shift()
+    _return.push( await fn( each ) || each )
 
     // Recursive async/await
-    if( this.length ) await recuror()
+    if( _array.length ) await recuror()
   }
 
   await recuror()
-  
-  return toReturn
+
+  return _return
 }
 
 
