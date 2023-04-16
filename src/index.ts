@@ -4,8 +4,37 @@ import { MongoClient } from 'mongodb'
 import dotenv from 'dotenv'
 import NPM from './workers/npm'
 import Github from './workers/github'
+import Packagist from './workers/packagist'
 
 dotenv.config()
+
+
+declare global {
+  interface Array<T> {
+    pmap: ( fn: ( x: T ) => Promise<any> ) => Promise<any>
+  }
+}
+
+Array.prototype.pmap = async function( fn ){
+
+  if( !this.length ) return []
+
+  const
+  toReturn: any[] = [],
+  recuror = async () => {
+    const 
+    each = this.shift()
+    toReturn.push( await fn( each ) || each )
+
+    // Recursive async/await
+    if( this.length ) await recuror()
+  }
+
+  await recuror()
+  
+  return toReturn
+}
+
 
 async function dbConnect(): Promise<DBCollections> {
   // Connect to the database server
@@ -37,6 +66,7 @@ async function start(){
       switch( each ){
         case 'npm': NPM( dbc ); break
         case 'github': Github( dbc ); break
+        case 'packagist': Packagist( dbc ); break
       }
     } )
   }

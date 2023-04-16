@@ -70,27 +70,27 @@ export default async ( dbc: DBCollections ) => {
     // Save each maintainer details if different from author and publisher
     Array.isArray( pkg.maintainers )
     && pkg.maintainers.length
-    && await Promise.all( pkg.maintainers.map( async maintainer => {
+    && await pkg.maintainers.pmap( async maintainer => {
       pkg.author?.email !== maintainer.email
       && pkg.publisher.email !== maintainer.email
       && await _save( maintainer )
-    } ) )
+    } )
   }
 
   async function storeKeywords( keywords: string[] ){
-    await Promise.all( keywords.map( async value => {
+    await keywords.pmap( async value => {
       console.log(`\t\t----- Saving keywords <${value}>`)
 
       if( await dbc.Keywords.findOne({ value }) ) return
       await dbc.Keywords.insertOne({ value, timestamp: Date.now() } as Keyword )
-    } ) )
+    } )
   }
 
   async function worker( keywords: Keyword[] ){
     console.log(`-- NPM: NEW JOB [${keywords.length}] keywords --`)
 
     // Fetch packages by keywords
-    await Promise.all( keywords.map( async keyword => {
+    await keywords.pmap( async keyword => {
       // Search packages by keyword
       console.log(`\t\tSearching <${keyword.value}> ...`)
       const packages = await searchPackages( keyword.value )
@@ -101,14 +101,14 @@ export default async ( dbc: DBCollections ) => {
       // Set on stage keywork
       await dbc.Stages.updateOne({ worker: 'npm' }, { $set: { lastKeyword: keyword } }, { upsert: true })
 
-      await Promise.all( packages.map( async each => {
+      await packages.pmap( async each => {
         // Save author details
         await saveAuthor( each.package )
         // Store keywords for next search
         each.package.keywords
         && await storeKeywords( each.package.keywords )
-      } ) )
-    } ) )
+      } )
+    } )
 
     console.log('-- NPM: GOING NEXT ... --')
 

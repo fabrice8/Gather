@@ -1,7 +1,7 @@
 
 import { Collection } from 'mongodb'
 
-export type PublicationSource = 'npm' | 'github' | 'medium'
+export type PublicationSource = 'npm' | 'github' | 'packagist' | 'medium'
 export type Publication = {
   name: string
   source: PublicationSource

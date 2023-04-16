@@ -86,19 +86,19 @@ export default async ( dbc: DBCollections ) => {
   }
 
   async function storeKeywords( keywords: string[] ){
-    await Promise.all( keywords.map( async value => {
+    await keywords.pmap( async value => {
       console.log(`\t\t----- Saving keywords <${value}>`)
 
       if( await dbc.Keywords.findOne({ value }) ) return
       await dbc.Keywords.insertOne({ value, timestamp: Date.now() } as Keyword )
-    } ) )
+    } )
   }
 
   async function worker( keywords: Keyword[] ){
     console.log(`-- GITHUB: NEW JOB [${keywords.length}] keywords --`)
 
     // Fetch repo by keywords
-    await Promise.all( keywords.map( async keyword => {
+    await keywords.pmap( async keyword => {
       // Search repos by keyword
       console.log(`\t\tSearching <${keyword.value}> ...`)
       const repos = await searchRepositories( keyword.value )
@@ -109,7 +109,7 @@ export default async ( dbc: DBCollections ) => {
       // Set on stage keywork
       await dbc.Stages.updateOne({ worker: 'github' }, { $set: { lastKeyword: keyword } }, { upsert: true })
 
-      await Promise.all( repos.map( async each => {
+      await repos.pmap( async each => {
         // Get user information
         const user = await getUser( each.owner.login )
         if( !user ) return
@@ -127,8 +127,8 @@ export default async ( dbc: DBCollections ) => {
         // Store keywords for next search
         each.topics
         && await storeKeywords( each.topics )
-      } ) )
-    } ) )
+      } )
+    } )
 
     console.log('-- GITHUB: GOING NEXT ... --')
 
