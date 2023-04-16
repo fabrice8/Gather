@@ -47,6 +47,7 @@ async function start(){
 }
 
 async function stop(){
+  // ISSUE: Rollback to working deployment on DO
   
   console.log('-- WORKERS PAUSED --')
 }
