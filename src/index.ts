@@ -22,7 +22,7 @@ async function dbConnect(): Promise<DBCollections> {
   }
 }
 
-;( async () => {
+async function start(){
   const Workers = (process.env.WORKERS || '').split(/\s*,\s*/)
 
   if( !Workers ){
@@ -44,4 +44,12 @@ async function dbConnect(): Promise<DBCollections> {
     console.error( error )
     process.exit(0)
   }
-})()
+}
+
+/**
+ * Run workers 
+ * 
+ * Control jobs activity with environment
+ * variable: PAUSE
+ */
+String( process.env.PAUSE ) !== 'true' ? start() : console.log('-- WORKERS PAUSED --')
