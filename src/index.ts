@@ -46,10 +46,15 @@ async function start(){
   }
 }
 
+async function stop(){
+  
+  console.log('-- WORKERS PAUSED --')
+}
+
 /**
  * Run workers 
  * 
  * Control jobs activity with environment
  * variable: PAUSE
  */
-String( process.env.PAUSE ) !== 'true' ? start() : console.log('-- WORKERS PAUSED --')
+String( process.env.PAUSE ) !== 'true' ? start() : stop()
