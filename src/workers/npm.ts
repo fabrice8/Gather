@@ -64,6 +64,7 @@ export default async ( dbc: DBCollections ) => {
 
     // Save publisher details if different from author
     pkg.author
+    && pkg.publisher
     && pkg.author.email !== pkg.publisher.email
     && await _save( pkg.publisher )
 
