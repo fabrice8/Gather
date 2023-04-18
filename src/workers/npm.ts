@@ -35,7 +35,7 @@ export default async ( dbc: DBCollections ) => {
 
     async function _save( author: Author ){
       // Author email strictly required
-      if( !author.email ) return
+      if( !author || !author.email ) return
       console.log(`\t\t----- Saving author <${author.email}>`)
 
       // Check existing author
