@@ -64,8 +64,7 @@ export default async ( dbc: DBCollections ) => {
 
     // Save publisher details if different from author
     pkg.author
-    && pkg.publisher
-    && pkg.author.email !== pkg.publisher.email
+    && pkg.author.email !== pkg.publisher?.email
     && await _save( pkg.publisher )
 
     // Save each maintainer details if different from author and publisher
@@ -73,7 +72,7 @@ export default async ( dbc: DBCollections ) => {
     && pkg.maintainers.length
     && await pkg.maintainers.pmap( async maintainer => {
       pkg.author?.email !== maintainer.email
-      && pkg.publisher.email !== maintainer.email
+      && pkg.publisher?.email !== maintainer.email
       && await _save( maintainer )
     } )
   }
